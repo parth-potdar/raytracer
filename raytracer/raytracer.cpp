@@ -21,7 +21,7 @@ int main() {
 			// this is useful when types are verbose or its obvious and it can save time (but less clear to reader sometimes)
 			auto r = double(i) / (image_width - 1); 
 			auto g = double(j) / (image_height - 1);
-			auto b = 0.0;
+			auto b = 0.5;
 
 			// r,g,b values are 0 - 1 and need to be converted to 0 - 255 scale
 			// as we cast to integer, there will be truncation. 
