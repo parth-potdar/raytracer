@@ -1,8 +1,11 @@
 // raytracer.cpp : This file contains the 'main' function. Program execution begins and ends there.
-
 // Each chapter will be tracked in git commits for simplicity.
 
 #include <iostream>
+
+// include the vector and colour header files
+#include "vec3.h"
+#include "colour.h"
 
 int main() {
 	// define the image size
@@ -26,16 +29,9 @@ int main() {
 			auto r = double(i) / (image_width - 1); 
 			auto g = double(j) / (image_height - 1);
 			auto b = 0.5;
-
-			// r,g,b values are 0 - 1 and need to be converted to 0 - 255 scale
-			// as we cast to integer, there will be truncation. 
-			// To get correct truncation (e.g 0.999 -> 1 instead of 0), we multiply by (255 + 0.999) - explicit truncation
-			int ir = int(255.999 * r);
-			int ig = int(255.999 * g);
-			int ib = int(255.999 * b);
-
-			// write pixel values to terminal
-			std::cout << ir << ' ' << ig << ' ' << ib << '\n';
+			
+			auto pixel_colour = colour(r,g,b); // create pixel colour vector
+			write_color(std::cout, pixel_colour);
 		}
 	}
 	// finished message

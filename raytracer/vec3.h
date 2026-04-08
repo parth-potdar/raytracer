@@ -1,0 +1,132 @@
+// Header file defining the vec3 class
+// vec3: 3D vectory class
+
+// header guard to prevent multiple inclusions of the same header file
+// using if/endif with preprocesser directive #define
+#ifndef VEC3_H
+#define VEC3_H
+
+#include <cmath>
+#include <iostream>
+
+// define a 3d vector class
+class vec3{
+    public: // define public attr and methods of 
+        // 3d vector is a double array
+        double e[3];
+
+        // define constructors (initialisers of objects)
+        vec3() : e{0,0,0} {} // initialises 0 vector if no elements given
+
+        vec3(double e0, double e1, double e2) : e{e0, e1, e2} {} // elems provided
+
+        // define accessors - lets you get x,y,z values individually
+        double x() const { return e[0]; } // inline method definition for short methods
+        double y() const { return e[1]; }
+        double z() const { return e[2]; }
+
+        // define operator overloads
+        // these are member function as they operate on a specific vector instance
+
+        // negate vector - return copy
+        vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); } 
+
+        // read-only of array index e.g. vector - this is return-by-value so it returns a COPY
+        double operator[](int i) const { return e[i]; }
+
+        // write access to change the vector element - this is returns a reference (double&) so return the actual vector
+        double& operator[](int i) { return e[i]; }
+
+        // add another vector to this vector using +=
+        vec3& operator+=(const vec3& v){ // pass in by reference (doesnt copy the added vector but const to dont change it)
+            e[0] += v.e[0];
+            e[1] += v.e[1];
+            e[2] += v.e[2];
+            return *this; // return the vector itself (this is a special class pointer, *this dereferences)
+        }
+        
+        // multiply by scalar using *=
+        vec3& operator*=(double t){
+            e[0] *= t;
+            e[1] *= t;
+            e[2] *= t;
+            return *this;
+        }
+        
+        // alias for element division by scalar (=multiply by 1/t)
+        vec3& operator/=(double t){
+            return *this *= 1/t; // can use the already defined overloaded operator
+        }
+
+        // length information of vector - this is a method so computed only when needed
+        double length() const{
+            return std::sqrt(length_squared()); // use squared attr
+        }
+
+        // length squard
+        double length_squared() const{
+            return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
+        }
+}; // semi-colon at end of class definition
+
+// define an alias for vec3 class called point3 -> makes it clearer naming for 3D point vectors
+using point3 = vec3;
+
+// define vector utility functions - these define function with vectors as inputs (not member methods)
+// use 'inline' to avoid liner error with duplicates
+
+// printing a vector - overload << operator with an output stream
+inline std::ostream& operator<<(std::ostream& out, const vec3& v){
+    return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
+}
+
+// adding 2 vectors (return a copy, not a reference so no & here)
+inline vec3 operator+(const vec3& u, const vec3& v){
+    return vec3(u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]);
+}
+
+// subtracting 2 vectors
+inline vec3 operator-(const vec3& u, const vec3& v){
+    return vec3(u.e[0] - v.e[0], u.e[1] - v.e[1], u.e[2] - v.e[2]);
+}
+
+// element-wise multiplication
+inline vec3 operator*(const vec3& u, const vec3& v){
+    return vec3(u.e[0]*v.e[0], u.e[1]*v.e[1], u.e[2]*v.e[2]);
+}
+
+// multiply vector by scalar (both t*v and v*t) - overload the * operator for these
+inline vec3 operator*(double t, const vec3& v){
+    return vec3(t*v.e[0], t*v.e[1], t*v.e[2]);
+}
+
+inline vec3 operator*(const vec3& v, double t){
+    return t * v; // pre-multiplying with scalar is equivalent to post-mult
+}
+
+// divide by scalar
+inline vec3 operator/(const vec3& v, double t){
+    return (1/t) * v;
+}
+
+// dot product between 2 vectors
+inline double dot(const vec3& u, const vec3& v){
+    return u.e[0]*v.e[0] + u.e[1]*v.e[1] + u.e[2]*v.e[2];
+}
+
+// cross product
+inline vec3 cross(const vec3& u, const vec3& v){
+    return vec3(
+        u.e[1]*v.e[2] - u.e[2]*v.e[1],
+        u.e[2]*v.e[0] - u.e[0]*v.e[2],
+        u.e[0]*v.e[1] - u.e[1]*v.e[0]
+    );
+}
+
+// get a unit vector from vector
+inline vec3 unit_vector(const vec3& v){
+    return v / v.length();
+}   
+
+// remember to put endif at the end of the guarded section
+#endif 
