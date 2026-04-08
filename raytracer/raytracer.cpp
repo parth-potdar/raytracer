@@ -15,6 +15,10 @@ int main() {
 
 	// create the image pixel-by-pixel (outer loop on rows, inner loop on columns to match ppm format)
 	for (int j = 0; j < image_height; j++) {
+
+		// create progress indicator using std::clog -> like cout but for logging
+		std::clog << "\rRows remaining: " << (image_height - j) << ' ' << std::flush; // buffered, so must be fushed
+
 		for (int i = 0; i < image_width; i++) {
 			// exmaple pixel values
 			// 'auto' tells compiler to figure out datatype
@@ -34,5 +38,7 @@ int main() {
 			std::cout << ir << ' ' << ig << ' ' << ib << '\n';
 		}
 	}
+	// finished message
+	std::clog << "\rDone.                           \n";
 }
 
