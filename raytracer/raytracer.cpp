@@ -8,8 +8,29 @@
 #include "colour.h"
 #include "ray.h"
 
+// function to check if ray intersects a sphere, given its centre and radius
+bool hit_sphere(const point3& centre, double radius, const ray& r){
+	// compute vector: C - origin of ray
+	vec3 oc = centre - r.origin();
+
+	// compute values of quadratic equation of intersection
+	auto a = dot(r.direction(), r.direction());
+	auto b = -2.0 * dot(r.direction(), oc);
+	auto c = dot(oc, oc) - radius*radius;
+
+	// evaluate discriminant
+	auto discriminant = b*b - 4*a*c;
+	return (discriminant >= 0); // return true if discriminant is >=0, meaning at least 1 intersection
+}
+
 colour ray_colour(const ray& r){
 	// define the colour of a ray
+
+	// if intersects with sphere, colour pixel read
+	if (hit_sphere(point3(0, 0, -1), 0.5, r)){
+		return colour(1, 0, 0);
+	}
+
 	// linear blue -> white gradient along y
 	// first normalise ray direction betwen -1 -> 1
 	vec3 unit_direction = unit_vector(r.direction());
@@ -18,7 +39,6 @@ colour ray_colour(const ray& r){
 	// using 0 -> 1 parameter 'a' (a=1 is blue and a=0 is white)
 	auto a = 0.5*(unit_direction.y() + 1.0); //
 	return (1-a)*colour(1.0, 1.0, 1.0) + a*colour(0.5, 0.7, 1.0);
-
 }
 
 int main() {
@@ -35,7 +55,7 @@ int main() {
 	// -- set up camera and viewport
 	auto focal_length = 1.0; // distace between camera centre and viewport
 	auto viewport_height = 2.0; // height of viewport plane (-1 -> 1)
-	auto viewport_width = viewport_height * (double(image_height)/image_width); // compute width from actual aspect ratio
+	auto viewport_width = viewport_height * (double(image_width)/image_height); // compute width from actual aspect ratio
 	auto camera_centre = point3(0,0,0);
 
 	// calculate viewport plane vectors
