@@ -8,8 +8,8 @@
 #include "colour.h"
 #include "ray.h"
 
-// function to check if ray intersects a sphere, given its centre and radius
-bool hit_sphere(const point3& centre, double radius, const ray& r){
+// now we want to compute the point of intersection, not just whether it intersects
+double hit_sphere(const point3& centre, double radius, const ray& r){
 	// compute vector: C - origin of ray
 	vec3 oc = centre - r.origin();
 
@@ -20,17 +20,33 @@ bool hit_sphere(const point3& centre, double radius, const ray& r){
 
 	// evaluate discriminant
 	auto discriminant = b*b - 4*a*c;
-	return (discriminant >= 0); // return true if discriminant is >=0, meaning at least 1 intersection
+
+	// find intersection points
+	if (discriminant < 0){
+		// if no intersection (negative discriminant)
+		return -1.0;
+	}
+	else{
+		// at least 1 intersection, so we find smallest solution (which will be the - one)
+		// use cmath that is already included in vec3.h
+		return (-b - std::sqrt(discriminant)) / (2.0*a);
+	}
 }
 
 colour ray_colour(const ray& r){
 	// define the colour of a ray
 
-	// if intersects with sphere, colour pixel read
-	if (hit_sphere(point3(0, 0, -1), 0.5, r)){
-		return colour(1, 0, 0);
-	}
+	// get intersection point of ray and sphere
+	auto t = hit_sphere(point3(0.0, 0.0, -1.0), 0.5, r);
 
+	// colout sphere intersection with colour based on normal vector
+	if (t > 0.0){
+		// compute unit normal vector as ray point to intersection - direction to sphere centre
+		vec3 N = unit_vector(r.at(t) - vec3(0,0,-1));
+		// colour pixel based on x,y,z value of normal vector
+		return 0.5*colour(N.x()+1, N.y()+1, N.z()+1);
+	}
+	
 	// linear blue -> white gradient along y
 	// first normalise ray direction betwen -1 -> 1
 	vec3 unit_direction = unit_vector(r.direction());

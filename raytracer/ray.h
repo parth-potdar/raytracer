@@ -21,6 +21,11 @@ class ray{
         const point3& origin() const { return orig; }
         const vec3& direction() const { return dir;}
 
+        // get the position on ray P(t) for a value of t (evaluate ray)
+        point3 at(double t) const {
+            return orig + t*dir;
+        }
+
     private:
         // the rays origin and direction are private attributes
         point3 orig;
