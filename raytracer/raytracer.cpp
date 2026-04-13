@@ -14,12 +14,15 @@ double hit_sphere(const point3& centre, double radius, const ray& r){
 	vec3 oc = centre - r.origin();
 
 	// compute values of quadratic equation of intersection
-	auto a = dot(r.direction(), r.direction());
-	auto b = -2.0 * dot(r.direction(), oc);
-	auto c = dot(oc, oc) - radius*radius;
+	auto a = r.direction().length_squared();
+	
+	// simplify by introducing intermediate vector h (ray direction . oc) and b = -2h
+	auto h = dot(r.direction(), oc);
 
-	// evaluate discriminant
-	auto discriminant = b*b - 4*a*c;
+	auto c = oc.length_squared() - radius*radius;
+
+	// evaluate discriminant (with b = -2h)
+	auto discriminant = h*h - a*c;
 
 	// find intersection points
 	if (discriminant < 0){
@@ -29,7 +32,7 @@ double hit_sphere(const point3& centre, double radius, const ray& r){
 	else{
 		// at least 1 intersection, so we find smallest solution (which will be the - one)
 		// use cmath that is already included in vec3.h
-		return (-b - std::sqrt(discriminant)) / (2.0*a);
+		return (h - std::sqrt(discriminant)) / a;
 	}
 }
 
