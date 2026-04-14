@@ -1,61 +1,25 @@
 // raytracer.cpp : This file contains the 'main' function. Program execution begins and ends there.
 // Each chapter will be tracked in git commits for simplicity.
 
-#include <iostream>
+#include "rtweekend.h"
 
-// include the vector and colour header files
-#include "vec3.h"
-#include "colour.h"
-#include "ray.h"
+// include hittable object headers
+#include "hittable.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
-// now we want to compute the point of intersection, not just whether it intersects
-double hit_sphere(const point3& centre, double radius, const ray& r){
-	// compute vector: C - origin of ray
-	vec3 oc = centre - r.origin();
-
-	// compute values of quadratic equation of intersection
-	auto a = r.direction().length_squared();
-	
-	// simplify by introducing intermediate vector h (ray direction . oc) and b = -2h
-	auto h = dot(r.direction(), oc);
-
-	auto c = oc.length_squared() - radius*radius;
-
-	// evaluate discriminant (with b = -2h)
-	auto discriminant = h*h - a*c;
-
-	// find intersection points
-	if (discriminant < 0){
-		// if no intersection (negative discriminant)
-		return -1.0;
-	}
-	else{
-		// at least 1 intersection, so we find smallest solution (which will be the - one)
-		// use cmath that is already included in vec3.h
-		return (h - std::sqrt(discriminant)) / a;
-	}
-}
-
-colour ray_colour(const ray& r){
+colour ray_colour(const ray& r, const hittable& world){
 	// define the colour of a ray
 
-	// get intersection point of ray and sphere
-	auto t = hit_sphere(point3(0.0, 0.0, -1.0), 0.5, r);
-
-	// colout sphere intersection with colour based on normal vector
-	if (t > 0.0){
-		// compute unit normal vector as ray point to intersection - direction to sphere centre
-		vec3 N = unit_vector(r.at(t) - vec3(0,0,-1));
-		// colour pixel based on x,y,z value of normal vector
-		return 0.5*colour(N.x()+1, N.y()+1, N.z()+1);
+	// use hittables list (world)
+	hit_record rec;
+	if (world.hit(r, interval(0, infinity), rec)) { // if hit, colour by normal
+		return 0.5 * (rec.normal + colour(1,1,1));
 	}
-	
-	// linear blue -> white gradient along y
-	// first normalise ray direction betwen -1 -> 1
-	vec3 unit_direction = unit_vector(r.direction());
 
 	// linear interpolation on y value of ray direction 
 	// using 0 -> 1 parameter 'a' (a=1 is blue and a=0 is white)
+	vec3 unit_direction = unit_vector(r.direction());
 	auto a = 0.5*(unit_direction.y() + 1.0); //
 	return (1-a)*colour(1.0, 1.0, 1.0) + a*colour(0.5, 0.7, 1.0);
 }
@@ -70,7 +34,12 @@ int main() {
 	if (image_height < 1){
 		image_height = 1; // set to 1 if computed height is less than 1
 	}
-	
+
+	// -- set up objects in the world
+	hittable_list world;
+	world.add(make_shared<sphere>(point3(0,0,-1), 0.5));
+	world.add(make_shared<sphere>(point3(0,-100.5,-1), 100)); // ground plane as big sphere
+
 	// -- set up camera and viewport
 	auto focal_length = 1.0; // distace between camera centre and viewport
 	auto viewport_height = 2.0; // height of viewport plane (-1 -> 1)
@@ -113,7 +82,10 @@ int main() {
 			
 			// -- create ray from camera through pixel
 			ray r(camera_centre, ray_direction);
-			auto pixel_colour = ray_colour(r); // apply ray color
+			
+			// use new colouring function
+			colour pixel_colour = ray_colour(r, world);
+
 			write_color(std::cout, pixel_colour);
 		}
 	}

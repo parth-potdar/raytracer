@@ -22,6 +22,7 @@ class ray{
         const vec3& direction() const { return dir;}
 
         // get the position on ray P(t) for a value of t (evaluate ray)
+        // the const means its a 'const member function' -> wont modify member variables orig, dir
         point3 at(double t) const {
             return orig + t*dir;
         }

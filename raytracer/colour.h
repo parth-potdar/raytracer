@@ -4,8 +4,6 @@
 
 #include "vec3.h"
 
-#include <iostream>
-
 using colour = vec3; // alias for vec3 -> color to define a RGB vector
 
 void write_color(std::ostream& out, const colour& pixel_colour){

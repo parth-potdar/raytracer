@@ -6,9 +6,6 @@
 #ifndef VEC3_H
 #define VEC3_H
 
-#include <cmath>
-#include <iostream>
-
 // define a 3d vector class
 class vec3{
     public: // define public attr and methods of 
