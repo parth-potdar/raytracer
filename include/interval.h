@@ -28,6 +28,13 @@ class interval {
             return min < x && max > x;
         }
 
+        // helper functon to clamp values within the interval 
+        double clamp(double x) const {
+            if (x < min) return min;
+            if (x > max) return max;
+            return x;
+        }
+
         // declare 2 static class variables, empty and universe
         // 'static' means belong to class itself, not any instance -> for many intervals, only 1 shared set exists
         static const interval empty, universe;
