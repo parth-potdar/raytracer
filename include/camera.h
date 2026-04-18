@@ -11,6 +11,7 @@ class camera {
         double aspect_ratio = 1.0; // ratio of image width over height
 	    int image_width = 100; // rendered image width in pixel count
         int samples_per_pixel = 10; // number of random samples used in anti-aliasing for each pixel 
+        int max_depth = 10; // maximum recursion depth of ray bounces in scene (see ray_colour())
 
         void render(const hittable& world) {
             // render the image to cout
@@ -31,7 +32,7 @@ class camera {
                    // take multiple samples
                    for (int sample = 0; sample < samples_per_pixel; sample++) {
                     ray r = get_ray(i , j); // get a new ray for each pixel, per sample
-                    pixel_colour += ray_colour(r, world); // accumulate pixel colour
+                    pixel_colour += ray_colour(r, max_depth, world); // accumulate pixel colour
                    }
                    // colour pixel
                     write_color(std::cout, pixel_samples_scale * pixel_colour);
@@ -88,13 +89,21 @@ class camera {
             pixel00_loc = viewport_upper_left + 0.5*(pixel_delta_u + pixel_delta_v);
         }
 
-        colour ray_colour(const ray& r, const hittable& world) {
+        colour ray_colour(const ray& r, int depth, const hittable& world) {
             // define the colour of a ray
+
+            // limit depth of recursion with terminating base case
+            if (depth <= 0) {
+                return colour(0,0,0); // return black
+            }
 
             // use hittables list (world)
             hit_record rec;
-            if (world.hit(r, interval(0, infinity), rec)) { // if hit, colour by normal
-                return 0.5 * (rec.normal + colour(1,1,1));
+            if (world.hit(r, interval(0.001, infinity), rec)) {
+                // consider a diffuse material where 50% of its colour is reflected, (100% is white)
+                vec3 direction = rec.normal + random_unit_vector(); // random reflection direction
+                return 0.5 * ray_colour(ray(rec.p, direction), depth - 1, world); // return 50% reflected ray based on environment (ray_colour call)
+                // pass depth - 1 to limit recursion depth
             }
 
             // linear interpolation on y value of ray direction 

@@ -64,6 +64,18 @@ class vec3{
         double length_squared() const{
             return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
         }
+
+        // functions to create a random vectors (not unit)
+        static vec3 random() {
+            // random 0-1 
+            return vec3(random_double(), random_double(), random_double());
+        }
+
+        static vec3 random(double min, double max) {
+            // if a range of values is provided
+            return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+        }
+
 }; // semi-colon at end of class definition
 
 // define an alias for vec3 class called point3 -> makes it clearer naming for 3D point vectors
@@ -124,6 +136,33 @@ inline vec3 cross(const vec3& u, const vec3& v){
 inline vec3 unit_vector(const vec3& v){
     return v / v.length();
 }   
+
+// generate a random unit vector on unit sphere
+inline vec3 random_unit_vector() {
+    while (true) {
+        // loop until valid unit vector found
+        auto p = vec3::random(-1, 1); // generate random vector in -1, 1 range (generate on unit cube)
+        auto lensq = p.length_squared(); // use squared lenght to constrain to unit sphere
+        if (lensq <= 1.0 && lensq > 1e-160) { // handle floating precision errors when create unit vector
+            // if length squared within unit sphere, return unit vector
+            return p / sqrt(lensq);
+        }  
+    }
+}
+
+// ensure that vector is on the correct hemisphere, by dotting with surface normal
+inline vec3 random_on_hemisphere(const vec3& normal) {
+    vec3 on_unit_sphere = random_unit_vector(); // generate random unit vector on unit sphere
+
+    // check if in same direction as surface normal vector
+    if (dot(on_unit_sphere, normal) > 0.0) {
+        return on_unit_sphere;
+    }
+    else {
+        // if not, negate vector and return 
+        return -on_unit_sphere;
+    }
+}
 
 // remember to put endif at the end of the guarded section
 #endif 
