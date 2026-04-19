@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "hittable.h" // include hittable class for rendering
+#include "material.h" // include materials
 
 class camera {
     public:
@@ -100,10 +101,12 @@ class camera {
             // use hittables list (world)
             hit_record rec;
             if (world.hit(r, interval(0.001, infinity), rec)) {
-                // consider a diffuse material where 50% of its colour is reflected, (100% is white)
-                vec3 direction = rec.normal + random_unit_vector(); // random reflection direction
-                return 0.5 * ray_colour(ray(rec.p, direction), depth - 1, world); // return 50% reflected ray based on environment (ray_colour call)
-                // pass depth - 1 to limit recursion depth
+               ray scattered; 
+               colour attentuation;
+               if (rec.mat->scatter(r, rec, attentuation, scattered)){
+                    return attentuation * ray_colour(scattered, depth-1, world);
+               }
+               return colour(0,0,0);
             }
 
             // linear interpolation on y value of ray direction 

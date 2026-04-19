@@ -1,11 +1,15 @@
 #ifndef HITTABLE_H // header guard
 #define HITTABLE_H
 
+// hittables need to reference material type, so include as prototype
+class material;
+
 class hit_record{
     // this structure stores a hit's point of intersection, normal vector and the value t along the ray
     public:
         point3 p; // P(t)
         vec3 normal; // normal vector
+        shared_ptr<material> mat; // pointer to material type - pointer so it doesnt need to know the details of class
         double t; // coordinate along ray (t)
         bool front_face; // set normal vector always be against the ray direction
 

@@ -9,7 +9,8 @@ class sphere : public hittable {
     public:
         // add a constructor which initialises centre and radius member variables ( : centre(...), ...)
         // use std::fmax to apply minimum radius value (0) - fmax returns maximum of 2 floating point numbers
-        sphere(const point3& centre, double radius) : centre(centre), radius(std::fmax(0, radius)) {}
+        sphere(const point3& centre, double radius, shared_ptr<material> mat) : 
+        centre(centre), radius(std::fmax(0, radius)), mat(mat) {}
 
         // define hit function - optional keyword 'override' to tell compiler to catch errors
         bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
@@ -48,6 +49,7 @@ class sphere : public hittable {
             rec.p = r.at(rec.t);
             vec3 outward_normal = (rec.p - centre) / radius; // compute outwards normal, and then convert   
             rec.set_face_normal(r, outward_normal); // let hit_record object set the correct normal direction
+            rec.mat = mat; // set material pointer of hit_rec to point to sphere's material pointer 
 
             // return true if valid intersection found -> object hit
             return true;
@@ -56,6 +58,7 @@ class sphere : public hittable {
     private:
         point3 centre; // declate member variables as private
         double radius;
+        shared_ptr<material> mat;
 };
 
 #endif

@@ -65,6 +65,14 @@ class vec3{
             return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
         }
 
+        // check if vector near zero to avoid issues
+        bool near_zero() const{
+            // return true if vector near zero
+            auto s = 1e-8;
+            // check absolute value of each element using std::fabs
+            return (std::fabs(e[0]) < s) && (std::fabs(e[1]) < s) && (std::fabs(e[2]) < s);
+        }
+
         // functions to create a random vectors (not unit)
         static vec3 random() {
             // random 0-1 
@@ -162,6 +170,11 @@ inline vec3 random_on_hemisphere(const vec3& normal) {
         // if not, negate vector and return 
         return -on_unit_sphere;
     }
+}
+
+// get reflected ray
+inline vec3 reflect(const vec3& v, const vec3& n) {
+    return v - 2*dot(v, n)*n; // reflection can be computed by scaling normal vector and subtracting
 }
 
 // remember to put endif at the end of the guarded section
