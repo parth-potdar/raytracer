@@ -177,5 +177,16 @@ inline vec3 reflect(const vec3& v, const vec3& n) {
     return v - 2*dot(v, n)*n; // reflection can be computed by scaling normal vector and subtracting
 }
 
+// refract according to snells law
+inline vec3 refract(const vec3& v, const vec3& n, double relative_index) {
+    auto cos_theta = std::fmin(dot(v, -n), 1.0); // compute cost theta with clipping
+
+    // compute the perpendicular and parallel components of refracted ray
+    vec3 r_perp = relative_index * (v + cos_theta*n);
+    vec3 r_paral = -std::sqrt(std::fabs(1.0 - r_perp.length_squared())) * n;
+
+    return r_perp + r_paral; // return refracted ray
+}
+
 // remember to put endif at the end of the guarded section
 #endif 

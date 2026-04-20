@@ -76,4 +76,51 @@ class metal : public material {
         double fuzz;
 };
 
+class dielectric : public material {
+    // dielectric material reflects and refracts
+    public:
+        //constructor
+        dielectric(double refraction_index) : refraction_index(refraction_index) {}
+
+        bool scatter(
+            const ray& r_in, const hit_record& rec, colour& attentuation, ray& scattered
+        ) const override {
+            attentuation = colour(1.0, 1.0, 1.0); // zero absorption -> all rays reflect/refract with no loss of colour
+
+            // check if ray is hitting surface or inside -> get correct refraction direction
+            // if hitting outside of surface, invert index (bend inwards), otherwise bend outwards
+            double ri = rec.front_face ? (1.0/refraction_index) : refraction_index;
+
+            vec3 unit_direction = unit_vector(r_in.direction()); // unit direction vector of incident ray
+            
+            // handle no-solution to snells law -> Total Interal Reflection
+            double cos_theta = std::fmin(dot(-unit_direction, rec.normal), 1.0);
+            double sin_theta = std::sqrt(1.0 - cos_theta*cos_theta);
+
+            // flag TIR
+            bool cannot_refract = ri * sin_theta > 1.0;
+            vec3 direction; // declare direction of out ray
+
+            if (cannot_refract || reflectance(cos_theta, ri) > random_double()){ // if TIR -> reflect
+                direction = reflect(unit_direction, rec.normal);
+            }
+            else { // else, always refract
+                direction = refract(unit_direction, rec.normal, ri);
+            }
+
+            scattered = ray(rec.p, direction);
+
+            return true;
+        }
+    private:
+        double refraction_index; // material refractive index - usually relative to vacuum/air or outer material
+        
+        static double reflectance(double cosine, double refraction_index) {
+            // Schlick's approximation of reflectance of glass
+            auto r0 = (1 - refraction_index) / (1 + refraction_index);
+            r0 = r0*r0;
+            return r0 + (1-r0)*std::pow((1-cosine), 5);
+        }
+};
+
 #endif
