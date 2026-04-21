@@ -145,6 +145,16 @@ inline vec3 unit_vector(const vec3& v){
     return v / v.length();
 }   
 
+// generate a random vector in unit disk
+inline vec3 random_in_unit_disk() {
+    while (true) { // loop until valid vector generated
+        auto p = vec3(random_double(-1, 1), random_double(-1, 1), 0.0); // random vector on disk
+        if (p.length_squared() < 1){
+            return p; // only return vectors within the disk.
+        }
+    }
+}
+
 // generate a random unit vector on unit sphere
 inline vec3 random_unit_vector() {
     while (true) {
